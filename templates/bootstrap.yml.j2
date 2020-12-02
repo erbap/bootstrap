@@ -1,0 +1,6 @@
+---
+# {{ ansible_managed }}
+
+ansible_python_interpreter: "{{ ansible_python.executable }}"
+bootstrap_fqdn: "{{ bootstrap_fqdn | default(inventory_hostname) }}"
+...

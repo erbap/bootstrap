@@ -1,0 +1,10 @@
+---
+- name: "zypper | Check if {{ package }} is installed"
+  raw: 'zypper --non-interactive --gpg-auto-import-keys search {{ package }} | grep " {{ package }} " | [ -z $(cut -f1 -d\|) ] && echo 1 || echo 0'
+  changed_when: False
+  register: zypper
+
+- name: "zypper | Install {{ package }}"
+  when: "'1' in zypper.stdout_lines"
+  raw: 'zypper --non-interactive --gpg-auto-import-keys install {{ package }}'
+...

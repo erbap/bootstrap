@@ -1,0 +1,9 @@
+---
+- name: "debian | Install basic packages for ansible on Debian"
+  include_tasks: apt.yml
+  loop:
+  - "debian-archive-keyring"
+  - "apt-transport-https"
+  loop_control:
+    loop_var: package
+...

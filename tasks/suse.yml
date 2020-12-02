@@ -1,0 +1,6 @@
+---
+- name: "suse | Install python-xml on SUSE"
+  include_tasks: zypper.yml
+  vars:
+    package: "python-xml"
+...

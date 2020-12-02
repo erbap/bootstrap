@@ -1,0 +1,11 @@
+---
+- name: "apt | Check if {{ package }} is installed"
+  raw: "apt list --installed 2> /dev/null | grep '^{{ package }}/'  > /dev/null 2>&1; echo $?"
+  changed_when: False
+  register: apt
+
+- name: "apt | Install {{ package }}"
+  when: "'1' in apt.stdout_lines"
+  raw: "apt -y install {{ package }}"
+  become: True
+...

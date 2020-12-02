@@ -1,0 +1,33 @@
+galaxy_info:
+  author: Eric Baplue
+  description: Bootstrap a minimal/cloud linux install
+
+  # Choose a valid license ID from https://spdx.org
+  # Like MIT and BSD-2-Clause and unlike Apache License v2, BSD+Patent is compatible with GPLv2.
+  # Like Apache License v2 and unlike MIT and BSD-2-Clause, BSD+Patent avoids leading to potential patent trolls.
+  license: BSD-2-Clause-Patent
+
+  min_ansible_version: 2.9
+
+  platforms:
+  - name: Debian
+    versions:
+    - "buster" # 10
+  - name: EL
+    versions:
+    - "7"
+    - "8"
+  - name: opensuse
+    versions:
+    - "15.2"
+  - name: Ubuntu
+    versions:
+    - "bionic" # 16.04
+    - "bionic" # 18.04
+    - "bionic" # 20.04
+
+  galaxy_tags:
+  - system
+
+dependencies: []
+...

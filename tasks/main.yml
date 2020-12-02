@@ -1,0 +1,76 @@
+---
+- name: "Check if host_vars/{{ inventory_hostname }} exist"
+  stat:
+    path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+  delegate_to: localhost
+  become: False
+  changed_when: False
+  register: bootstrap_host_vars
+
+- name: "Create the host_vars/{{ inventory_hostname }} if it does not exist"
+  when: not bootstrap_host_vars.stat.exists
+  file:
+    path: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}"
+    state: directory
+  delegate_to: localhost
+  become: False
+
+- name: "Get lsb_release info from host"
+  #  raw: "cat /etc/os-release"
+  raw: "grep -v '^ *$' /etc/os-release"
+  changed_when: False
+  register: bootstrap_os_release
+
+- name: "Convert to dict list"
+  set_fact:
+    "bootstrap_{{ item.split('=')[0] | lower }}": "{{ item.split('=')[1] | regex_replace('\"') }}"
+  loop: "{{ bootstrap_os_release.stdout_lines }}"
+# Generated variables for ALL OS
+# bootstrap_bug_report_url    https://bugs.debian.org/ | https://bugs.launchpad.net/ubuntu/ | https://bugs.opensuse.org | https://bugs.centos.org/
+# bootstrap_home_url          https://www.debian.org/ | https://www.ubuntu.com/ | https://www.opensuse.org/ | https://www.centos.org/
+# bootstrap_id                debian | ubuntu | opensuse-leap | centos
+# bootstrap_name              Debian GNU/Linux | Ubuntu | openSUSE Leap | CentOS Linux
+# bootstrap_pretty_name       Debian GNU/Linux 10 (buster) | Ubuntu 18.04.5 LTS | openSUSE Leap 15.2 | CentOS Linux 8 (Core)
+# bootstrap_version           10 (buster) | 18.04.5 LTS (Bionic Beaver) | '15.2' | 8 (Core)
+# bootstrap_version_id        '10' | '18.04' | '15.2' | '8'
+#
+# Generated variables for Ubuntu/CentOS/openSUSE
+# bootstrap_id_like           <not defined> | debian | suse opensuse | rhel fedora
+#
+# Generated variables for Debian/Ubuntu
+# bootstrap_version_codename  buster | bionic | <not defined> | <not defined>
+
+- name: Create the bootstrap_os_family variable
+  set_fact:
+    bootstrap_os_family: "{{ (bootstrap_id_like | default('debian')).split(' ')[0] }}"
+
+- name: Include os dependent tasks
+  include_tasks: "{{ bootstrap_os_family }}.yml"
+
+- name: Run gather_facts now
+  setup:
+
+- name: Copy bootstrap template
+  template:
+    src: "bootstrap.yml.j2"
+    dest: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/bootstrap.yml"
+  register: bootstrap_vars
+  delegate_to: localhost
+  become: False
+
+- name: (re)read the variable(s) in bootstrap.yml
+  when: bootstrap_vars.changed
+  include_vars: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/bootstrap.yml"
+
+- name: Set the fqdn hostnamea in /etc/hostname
+  hostname:
+    name: "{{ bootstrap_fqdn }}"
+  become: True
+
+- name: Set the fqdn hostnamea in /etc/hosts
+  lineinfile:
+    path: "/etc/hosts"
+    regexp: "^127.0.0.1.*localhost"
+    line: "127.0.0.1 {{ bootstrap_fqdn }} {{ bootstrap_fqdn.split('.')[0] }} localhost"
+  become: True
+...
