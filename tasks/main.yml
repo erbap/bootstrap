@@ -58,7 +58,7 @@
   delegate_to: localhost
   become: False
 
-- name: (re)read the variable(s) in bootstrap.yml
+- name: (re)read the variable(s) in bootstrap.yml # noqa 503
   when: bootstrap_vars.changed
   include_vars: "{{ inventory_dir }}/host_vars/{{ inventory_hostname }}/bootstrap.yml"
 

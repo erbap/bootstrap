@@ -22,9 +22,9 @@ galaxy_info:
     - "15.2"
   - name: Ubuntu
     versions:
-    - "bionic" # 16.04
+    - "xenial" # 16.04
     - "bionic" # 18.04
-    - "bionic" # 20.04
+    - "focal"  # 20.04
 
   galaxy_tags:
   - system
